@@ -1,0 +1,16 @@
+{
+  "name": "controle-gastos-whatsapp",
+  "version": "1.0.0",
+  "description": "Bot WhatsApp para controle de gastos",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js"
+  },
+  "dependencies": {
+    "@wppconnect-team/wppconnect": "^1.30.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
