@@ -1,3 +1,1 @@
-export default function handler(req, res) {
-  res.status(200).send("Hello World - Bot funcionando!");
-}
+export default (req, res) => res.send("TESTE FUNCIONANDO!");
