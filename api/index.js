@@ -1,7 +1,10 @@
 export default function handler(req, res) {
-  const { pathname } = new URL(req.url, `http://${req.headers.host}`);
+  // Pegar a URL da requisição
+  const url = req.url || '/';
   
-  if (pathname === '/qr') {
+  // Verificar se é a rota /qr
+  if (url === '/qr' || url.startsWith('/qr')) {
+    res.setHeader('Content-Type', 'text/html');
     return res.status(200).send(`
       <!DOCTYPE html>
       <html>
@@ -32,7 +35,10 @@ export default function handler(req, res) {
     `);
   }
   
+  // Página principal
+  res.setHeader('Content-Type', 'text/html');
   return res.status(200).send(`
+    <!DOCTYPE html>
     <html>
       <head>
         <title>Bot WhatsApp</title>
