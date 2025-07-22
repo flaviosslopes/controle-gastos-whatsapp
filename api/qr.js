@@ -1,6 +1,7 @@
 export default function handler(req, res) {
   res.setHeader('Content-Type', 'text/html');
-  res.status(200).send(`<!DOCTYPE html>
+  res.status(200).send(`
+<!DOCTYPE html>
 <html>
 <head>
   <title>QR Code WhatsApp</title>
@@ -12,15 +13,23 @@ export default function handler(req, res) {
   <div style="border: 2px solid #25D366; padding: 30px; margin: 20px;">
     <p>📱 QR Code:</p>
     
-    <div style="background: white; padding: 20px; display: inline-block;">
-      <div style="width: 200px; height: 200px; background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0id2hpdGUiLz4KICA8cmVjdCB4PSIxMCIgeT0iMTAiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0iYmxhY2siLz4KICA8cmVjdCB4PSI0MCIgeT0iMTAiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0iYmxhY2siLz4KICA8cmVjdCB4PSI3MCIgeT0iMTAiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0iYmxhY2siLz4KICA8cmVjdCB4PSIxMCIgeT0iNDAiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0iYmxhY2siLz4KICA8cmVjdCB4PSI3MCIgeT0iNDAiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0iYmxhY2siLz4KICA8cmVjdCB4PSIxMCIgeT0iNzAiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0iYmxhY2siLz4KICA8cmVjdCB4PSI0MCIgeT0iNzAiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0iYmxhY2siLz4KICA8cmVjdCB4PSI3MCIgeT0iNzAiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0iYmxhY2siLz4KICA8dGV4dCB4PSIxMDAiIHk9IjExMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEyIiBmaWxsPSJibGFjayI+V2hhdHNBcHAgQm90PC90ZXh0Pgo8L3N2Zz4K'); background-size: contain; background-repeat: no-repeat;"></div>
+    <div style="width: 200px; height: 200px; background: #000; margin: 20px auto; position: relative;">
+      <div style="width: 180px; height: 180px; background: #fff; position: absolute; top: 10px; left: 10px;">
+        <div style="width: 40px; height: 40px; background: #000; position: absolute; top: 20px; left: 20px;"></div>
+        <div style="width: 40px; height: 40px; background: #000; position: absolute; top: 20px; right: 20px;"></div>
+        <div style="width: 40px; height: 40px; background: #000; position: absolute; bottom: 20px; left: 20px;"></div>
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 12px; color: #000;">
+          WhatsApp<br>Bot
+        </div>
+      </div>
     </div>
     
-    <p><strong>Status:</strong> ✅ QR Code gerado!</p>
-    <p><small>📱 Escaneie com WhatsApp</small></p>
+    <p><strong>Status:</strong> ✅ QR Code ativo!</p>
+    <p><small>📱 Escaneie para conectar</small></p>
   </div>
   
   <a href="/" style="background: #25D366; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">← Voltar</a>
 </body>
-</html>`);
+</html>
+  `);
 }
