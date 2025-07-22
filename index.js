@@ -1,18 +1,35 @@
 const wppconnect = require('@wppconnect-team/wppconnect');
+const express = require('express');
 
 console.log('🤖 Bot Controle de Gastos - Render');
-console.log('🚀 Iniciando na nuvem gratuita...');
+console.log('�� Iniciando na nuvem gratuita...');
 
 const PORT = process.env.PORT || 3000;
+const app = express();
 
-// Servidor HTTP simples para manter vivo
-const http = require('http');
-const server = http.createServer((req, res) => {
-  res.writeHead(200, { 'Content-Type': 'text/plain' });
-  res.end('🤖 Bot WhatsApp funcionando!\n⏰ ' + new Date().toLocaleString('pt-BR'));
+// Armazenar gastos em memória
+let gastos = [];
+
+// Rota principal
+app.get('/', (req, res) => {
+  res.send('🤖 Bot WhatsApp funcionando!\n⏰ ' + new Date().toLocaleString('pt-BR'));
 });
 
-server.listen(PORT, () => {
+// Rota para QR Code
+app.get('/qr', (req, res) => {
+  res.send(`
+    <html>
+      <head><title>QR Code WhatsApp</title></head>
+      <body>
+        <h1>🤖 Conectar WhatsApp Bot</h1>
+        <p>📱 Escaneie o QR Code no WhatsApp</p>
+        <p>⏰ ${new Date().toLocaleString('pt-BR')}</p>
+      </body>
+    </html>
+  `);
+});
+
+app.listen(PORT, () => {
   console.log(`🌐 Servidor rodando na porta ${PORT}`);
 });
 
@@ -29,84 +46,63 @@ wppconnect
       '--disable-accelerated-2d-canvas',
       '--no-first-run',
       '--no-zygote',
-      '--disable-gpu',
-      '--disable-background-timer-throttling',
-      '--disable-backgrounding-occluded-windows',
-      '--disable-renderer-backgrounding'
+      '--disable-gpu'
     ]
   })
   .then((client) => {
-    console.log('🎉 BOT CONECTADO NO RENDER!');
-    console.log('📱 Aguardando mensagens...');
-    
+    console.log('🎉 BOT CONECTADO!');
+
     client.onAnyMessage(async (message) => {
       if (message.fromMe && message.body) {
-        console.log('📤 Nova mensagem:', message.body);
-        
         const texto = message.body.toLowerCase().trim();
-        
-        try {
-          if (texto === 'teste') {
-            console.log('🎉 TESTE DETECTADO!');
-            await client.sendText(message.to, '✅ Bot no Render funcionando! 🆓☁️\n\n🚀 Totalmente gratuito!\n⏰ 24/7 online!');
-            console.log('✅ Resposta de teste enviada!');
+
+        // Adicionar gasto: !gasto 50 almoço
+        if (texto.startsWith('!gasto ')) {
+          const partes = texto.split(' ');
+          const valor = parseFloat(partes[1]);
+          const descricao = partes.slice(2).join(' ');
+          
+          if (valor && descricao) {
+            gastos.push({ valor, descricao, data: new Date() });
+            await client.sendText(message.from, `💰 Gasto adicionado: R\$ ${valor.toFixed(2)} - ${descricao}`);
           }
-          else if (texto.includes('gastei')) {
-            console.log('💰 GASTO DETECTADO!');
-            
-            const valorMatch = texto.match(/(\d+(?:[.,]\d{1,2})?)/);
-            if (valorMatch) {
-              const valor = parseFloat(valorMatch[1].replace(',', '.'));
-              let descricao = texto.replace(/gastei|gasto|r\$|\d+(?:[.,]\d{1,2})?|reais?/g, '').trim();
-              
-              if (!descricao) descricao = 'Gasto não especificado';
-              
-              const categoria = categorizarGasto(descricao);
-              const agora = new Date();
-              const data = agora.toLocaleDateString('pt-BR');
-              const hora = agora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'});
-              
-              const resposta = `✅ *Gasto registrado!* 💰\n\n💵 R\$ ${valor.toFixed(2)}\n📝 ${descricao}\n📂 ${categoria}\n📅 ${data} às ${hora}\n\n🆓 Render gratuito funcionando!`;
-              
-              await client.sendText(message.to, resposta);
-              console.log('✅ Gasto registrado:', valor, '-', descricao);
-            } else {
-              await client.sendText(message.to, '❌ Formato incorreto!\n\n✅ Use: "gastei 25 almoço"');
-            }
+        }
+
+        // Ver gastos: !gastos
+        if (texto === '!gastos') {
+          if (gastos.length === 0) {
+            await client.sendText(message.from, '📊 Nenhum gasto registrado ainda.');
+          } else {
+            let lista = '📊 *SEUS GASTOS:*\n\n';
+            gastos.forEach((gasto, i) => {
+              lista += `${i+1}. R\$ ${gasto.valor.toFixed(2)} - ${gasto.descricao}\n`;
+            });
+            await client.sendText(message.from, lista);
           }
-          else if (texto === 'status') {
-            const uptime = process.uptime();
-            const horas = Math.floor(uptime / 3600);
-            const minutos = Math.floor((uptime % 3600) / 60);
-            
-            await client.sendText(message.to, `🤖 *Status do Bot*\n\n✅ Online no Render\n🆓 Totalmente gratuito\n⏰ Ativo há ${horas}h ${minutos}m\n📱 Pronto para registrar gastos!`);
-          }
-        } catch (error) {
-          console.error('❌ Erro:', error);
+        }
+
+        // Ver total: !total
+        if (texto === '!total') {
+          const total = gastos.reduce((sum, gasto) => sum + gasto.valor, 0);
+          await client.sendText(message.from, `💸 *TOTAL GASTO:* R\$ ${total.toFixed(2)}`);
+        }
+
+        // Ajuda: !ajuda
+        if (texto === '!ajuda') {
+          const ajuda = `🤖 *COMANDOS DO BOT:*
+
+!gasto [valor] [descrição] - Adicionar gasto
+!gastos - Ver todos os gastos
+!total - Ver total gasto
+!ajuda - Ver comandos
+
+*Exemplo:*
+!gasto 25.50 almoço`;
+          await client.sendText(message.from, ajuda);
         }
       }
     });
-    
-    // Manter bot ativo
-    setInterval(() => {
-      console.log('💓 Bot ativo:', new Date().toLocaleString('pt-BR'));
-    }, 300000); // 5 minutos
-    
   })
   .catch((error) => {
-    console.error('❌ Erro na conexão:', error);
-    setTimeout(() => {
-      console.log('🔄 Tentando reconectar...');
-      process.exit(1);
-    }, 5000);
+    console.error('❌ Erro:', error);
   });
-
-function categorizarGasto(descricao) {
-  const desc = descricao.toLowerCase();
-  if (desc.includes('almoço') || desc.includes('café') || desc.includes('jantar') || desc.includes('lanche') || desc.includes('comida')) return '🍽️ Alimentação';
-  if (desc.includes('uber') || desc.includes('taxi') || desc.includes('ônibus') || desc.includes('metro') || desc.includes('gasolina')) return '🚗 Transporte';
-  if (desc.includes('mercado') || desc.includes('supermercado') || desc.includes('compras')) return '🛒 Compras';
-  if (desc.includes('farmácia') || desc.includes('remédio') || desc.includes('médico') || desc.includes('hospital')) return '🏥 Saúde';
-  if (desc.includes('cinema') || desc.includes('show') || desc.includes('festa') || desc.includes('bar')) return '🎬 Entretenimento';
-  return '📦 Outros';
-}
