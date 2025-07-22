@@ -137,3 +137,13 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Sessões WhatsApp
+whatsapp-session/
+session-*/
+tokens/
+*.session
+*.data
+
+# Cache adicional
+.cache/
